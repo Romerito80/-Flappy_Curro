@@ -21,7 +21,21 @@
             <span class="crest c4"></span>
           </div>
           <h1>Flappy Curro Sevilla</h1>
-          <button id="play-button" class="primary-button" type="button">Jugar</button>
+          <div class="start-actions">
+            <button id="play-button" class="primary-button" type="button">Jugar</button>
+            <button id="collection-button" class="icon-button collection-button" type="button" aria-label="Ver coleccion de curiosidades">
+              <span class="cup-icon" aria-hidden="true"></span>
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <section id="collection-screen" class="screen screen-collection" hidden aria-live="polite">
+        <div class="screen-panel collection-panel">
+          <h2>Coleccion</h2>
+          <p id="collection-stats" class="collection-stats">0/30 curiosidades</p>
+          <div id="collection-list" class="collection-list" aria-label="Coleccion de curiosidades"></div>
+          <button id="collection-back-button" class="primary-button" type="button">Volver</button>
         </div>
       </section>
 

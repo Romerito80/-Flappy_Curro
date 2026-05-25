@@ -217,6 +217,56 @@ h2::before {
   background: #102215;
 }
 
+.start-actions {
+  display: flex;
+  align-items: end;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+.start-actions .primary-button {
+  margin-top: 0;
+}
+
+.collection-button {
+  flex: 0 0 52px;
+  margin: 0;
+}
+
+.cup-icon {
+  position: relative;
+  display: inline-block;
+  width: 24px;
+  height: 24px;
+}
+
+.cup-icon::before {
+  content: "";
+  position: absolute;
+  left: 5px;
+  top: 2px;
+  width: 14px;
+  height: 13px;
+  border: 3px solid var(--cream);
+  border-top-width: 4px;
+  box-shadow:
+    -7px 2px 0 -3px var(--cream),
+    7px 2px 0 -3px var(--cream),
+    0 0 8px rgba(101, 255, 109, 0.55);
+}
+
+.cup-icon::after {
+  content: "";
+  position: absolute;
+  left: 8px;
+  top: 16px;
+  width: 8px;
+  height: 4px;
+  background: var(--cream);
+  box-shadow: 0 4px 0 2px var(--cream);
+}
+
 .ghost-button {
   width: min(100%, 214px);
   margin-top: 12px;
@@ -432,6 +482,83 @@ h2::before {
 #game-over-screen .screen-panel {
   width: min(100%, 330px);
   padding: 18px 14px 16px;
+}
+
+.screen-collection {
+  padding: 16px;
+}
+
+.collection-panel {
+  display: flex;
+  flex-direction: column;
+  width: min(100%, 372px);
+  max-height: calc(100% - 24px);
+  padding: 18px 14px 16px;
+}
+
+.collection-stats {
+  margin-top: 8px;
+  color: #ffd28a;
+  font-size: 14px;
+  text-transform: uppercase;
+}
+
+.collection-list {
+  display: grid;
+  gap: 8px;
+  min-height: 0;
+  margin-top: 12px;
+  padding-right: 4px;
+  overflow-y: auto;
+  text-align: left;
+  scrollbar-color: var(--green) rgba(0, 0, 0, 0.24);
+}
+
+.collection-item {
+  padding: 9px;
+  color: rgba(184, 255, 139, 0.56);
+  background: rgba(0, 0, 0, 0.24);
+  border: 2px solid rgba(101, 255, 109, 0.22);
+}
+
+.collection-item.is-unlocked {
+  color: var(--cream);
+  border-color: rgba(101, 255, 109, 0.7);
+  box-shadow: inset 0 0 14px rgba(101, 255, 109, 0.08);
+}
+
+.collection-item-header {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.collection-number {
+  color: #ffd28a;
+  font-size: 12px;
+}
+
+.collection-item h3 {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.15;
+  text-transform: uppercase;
+}
+
+.collection-location,
+.collection-text {
+  margin-top: 5px;
+  font-size: 11px;
+  line-height: 1.3;
+}
+
+.collection-location {
+  color: var(--terminal-dim);
+  text-transform: uppercase;
+}
+
+.collection-text {
+  text-transform: none;
 }
 
 .fade-layer {

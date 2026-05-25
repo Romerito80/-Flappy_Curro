@@ -51,7 +51,8 @@ Juego/
 - La puntuacion se representa tambien con botellines pixel-art estilo Cruzcampo, manteniendo el numero para que sea legible.
 - La moneda acumulable se muestra como ensaladillas y se conserva con `localStorage`.
 - En Game Over se pueden gastar ensaladillas para comprar curiosidades de la ubicacion actual.
-- Las curiosidades desbloqueadas se reinician al empezar una nueva partida; las ensaladillas acumuladas se conservan.
+- Hay 30 curiosidades coleccionables de Sevilla.
+- La coleccion se guarda con `localStorage` y se consulta desde el boton de copa en la pantalla de inicio.
 - El himno de Sevilla se reproduce como musica de fondo en bucle y a volumen bajo al pulsar `Jugar`.
 - Los obstaculos se generan proceduralmente con referencias sevillanas: Giralda, Torre del Oro, Torre Pelli, columnas, farolas y balcones.
 - El record se guarda con `localStorage`.

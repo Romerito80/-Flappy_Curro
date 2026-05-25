@@ -49,6 +49,7 @@
   const GameState = Object.freeze({
     LOADING: "loading",
     START: "start",
+    COLLECTION: "collection",
     PLAYING: "playing",
     PAUSED: "paused",
     GAME_OVER: "gameOver"
@@ -99,6 +100,16 @@
           id: "azahar-ribera",
           title: "Azahar al rio",
           text: "En primavera, el olor del azahar llega a muchas calles cercanas al rio y forma parte del paisaje sensorial sevillano."
+        },
+        {
+          id: "lonja-indias",
+          title: "Archivo de Indias",
+          text: "El Archivo de Indias conserva documentos esenciales para entender la relacion de Sevilla con America."
+        },
+        {
+          id: "maestranza-ribera",
+          title: "La Maestranza",
+          text: "La plaza de toros de la Maestranza se levanta cerca del rio y es una de las estampas mas conocidas del Arenal."
         }
       ]
     },
@@ -137,6 +148,11 @@
           id: "puerta-jerez-palmeras",
           title: "Palmeras y sombra",
           text: "Las palmeras de la zona ayudan a reconocer el caracter calido y monumental de esta entrada al casco historico."
+        },
+        {
+          id: "puerta-jerez-tranvia",
+          title: "Tranvia al centro",
+          text: "El tranvia que pasa por Puerta de Jerez enlaza esta zona con la avenida de la Constitucion y el casco monumental."
         }
       ]
     },
@@ -175,6 +191,11 @@
           id: "hispalis-paseo",
           title: "Camino al Alcazar",
           text: "Desde esta zona se llega caminando en pocos minutos al Archivo de Indias, la Catedral y el Real Alcazar."
+        },
+        {
+          id: "hispalis-luz",
+          title: "Luz sevillana",
+          text: "La fuente cambia mucho segun la hora: al atardecer, la piedra y el agua toman tonos dorados muy caracteristicos."
         }
       ]
     },
@@ -213,6 +234,16 @@
           id: "plaza-parque",
           title: "Junto a Maria Luisa",
           text: "La Plaza de Espana esta integrada en el entorno del Parque de Maria Luisa, uno de los grandes pulmones verdes de Sevilla."
+        },
+        {
+          id: "plaza-vicente-traver",
+          title: "Arquitectura regionalista",
+          text: "El conjunto de la Plaza de Espana es una de las grandes obras del regionalismo sevillano de comienzos del siglo XX."
+        },
+        {
+          id: "plaza-azulejos",
+          title: "Azulejos viajeros",
+          text: "Muchos visitantes buscan el banco de su provincia y se hacen una foto como pequeno ritual dentro de la plaza."
         }
       ]
     }
@@ -221,6 +252,9 @@
   const dom = {
     canvas: document.getElementById("game-canvas"),
     startScreen: document.getElementById("start-screen"),
+    collectionScreen: document.getElementById("collection-screen"),
+    collectionList: document.getElementById("collection-list"),
+    collectionStats: document.getElementById("collection-stats"),
     hud: document.getElementById("hud"),
     pauseScreen: document.getElementById("pause-screen"),
     gameOverScreen: document.getElementById("game-over-screen"),
@@ -238,6 +272,8 @@
     curiosityButton: document.getElementById("curiosity-button"),
     curiosityMessage: document.getElementById("curiosity-message"),
     playButton: document.getElementById("play-button"),
+    collectionButton: document.getElementById("collection-button"),
+    collectionBackButton: document.getElementById("collection-back-button"),
     pauseButton: document.getElementById("pause-button"),
     resumeButton: document.getElementById("resume-button"),
     pauseRestartButton: document.getElementById("pause-restart-button"),
@@ -501,11 +537,6 @@
 
     unlockCuriosity(id) {
       this.unlockedCuriosities.add(id);
-      this.writeUnlockedCuriosities();
-    }
-
-    resetCuriosities() {
-      this.unlockedCuriosities.clear();
       this.writeUnlockedCuriosities();
     }
   }
@@ -1363,6 +1394,8 @@
 
     bind() {
       dom.playButton.addEventListener("click", () => this.game.start());
+      dom.collectionButton.addEventListener("click", () => this.game.openCollection());
+      dom.collectionBackButton.addEventListener("click", () => this.game.closeCollection());
       dom.restartButton.addEventListener("click", () => this.game.restart());
       dom.pauseRestartButton.addEventListener("click", () => this.game.restart());
       dom.resumeButton.addEventListener("click", () => this.game.resume());
@@ -1439,9 +1472,19 @@
       this.state = nextState;
       dom.startScreen.hidden = nextState !== GameState.START;
       dom.startScreen.classList.toggle("active", nextState === GameState.START);
+      dom.collectionScreen.hidden = nextState !== GameState.COLLECTION;
       dom.hud.hidden = !(nextState === GameState.PLAYING || nextState === GameState.PAUSED);
       dom.pauseScreen.hidden = nextState !== GameState.PAUSED;
       dom.gameOverScreen.hidden = nextState !== GameState.GAME_OVER;
+    }
+
+    openCollection() {
+      this.renderCollection();
+      this.changeState(GameState.COLLECTION);
+    }
+
+    closeCollection() {
+      this.changeState(GameState.START);
     }
 
     start() {
@@ -1464,7 +1507,6 @@
 
     resetRun() {
       this.score.reset();
-      this.score.resetCuriosities();
       this.player.reset();
       this.particles.reset();
       this.obstacles.reset();
@@ -1493,6 +1535,11 @@
     }
 
     primaryAction() {
+      if (this.state === GameState.COLLECTION) {
+        this.closeCollection();
+        return;
+      }
+
       if (this.state === GameState.START) {
         this.start();
         return;
@@ -1626,6 +1673,7 @@
       this.curiosityMessageText = `$ ${curiosity.title}: ${curiosity.text}`;
       this.audio.play("score");
       this.syncHud();
+      this.renderCollection();
     }
 
     syncHud() {
@@ -1642,6 +1690,58 @@
       this.renderBottleScore(dom.scoreBottles, this.score.score, 8);
       this.renderBottleScore(dom.finalScoreBottles, this.score.score, 12);
       this.syncCuriosityShop(location);
+    }
+
+    getAllCuriosities() {
+      return Locations.flatMap((location) => {
+        return location.curiosities.map((curiosity) => ({
+          ...curiosity,
+          locationName: location.name
+        }));
+      });
+    }
+
+    renderCollection() {
+      if (!dom.collectionList || !dom.collectionStats) return;
+
+      const curiosities = this.getAllCuriosities();
+      const unlockedTotal = curiosities.filter((curiosity) => {
+        return this.score.hasCuriosity(curiosity.id);
+      }).length;
+
+      dom.collectionStats.textContent = `${unlockedTotal}/${curiosities.length} curiosidades`;
+      dom.collectionList.replaceChildren();
+
+      curiosities.forEach((curiosity, index) => {
+        const unlocked = this.score.hasCuriosity(curiosity.id);
+        const item = document.createElement("article");
+        item.className = unlocked ? "collection-item is-unlocked" : "collection-item";
+
+        const header = document.createElement("div");
+        header.className = "collection-item-header";
+
+        const number = document.createElement("span");
+        number.className = "collection-number";
+        number.textContent = String(index + 1).padStart(2, "0");
+
+        const title = document.createElement("h3");
+        title.textContent = unlocked ? curiosity.title : "Curiosidad bloqueada";
+
+        header.append(number, title);
+
+        const location = document.createElement("p");
+        location.className = "collection-location";
+        location.textContent = curiosity.locationName;
+
+        const text = document.createElement("p");
+        text.className = "collection-text";
+        text.textContent = unlocked
+          ? curiosity.text
+          : "Compra esta curiosidad con ensaladillas cuando llegues a su zona.";
+
+        item.append(header, location, text);
+        dom.collectionList.appendChild(item);
+      });
     }
 
     syncCuriosityShop(location) {
