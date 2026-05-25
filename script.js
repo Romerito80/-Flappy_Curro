@@ -39,9 +39,11 @@
     soundPaths: {
       jump: "assets/sounds/jump.wav",
       hit: "assets/sounds/hit.wav",
-      score: "assets/sounds/score.wav"
+      score: "assets/sounds/score.wav",
+      music: "assets/sounds/himno_sevilla.mp3"
     },
-    backgroundDimOpacity: 0.3
+    backgroundDimOpacity: 0.3,
+    musicVolume: 0.14
   };
 
   const GameState = Object.freeze({
@@ -306,6 +308,7 @@
     constructor(paths) {
       this.paths = paths;
       this.files = {};
+      this.music = null;
       this.context = null;
       this.unlocked = false;
       this.enabled = true;
@@ -315,6 +318,11 @@
       Object.entries(this.paths).forEach(([name, path]) => {
         const audio = new Audio(path);
         audio.preload = "auto";
+        if (name === "music") {
+          audio.loop = true;
+          audio.volume = CONFIG.musicVolume;
+          this.music = audio;
+        }
         this.files[name] = audio;
       });
     }
@@ -330,6 +338,23 @@
         }
       }
       this.unlocked = true;
+    }
+
+    playMusic() {
+      if (!this.enabled || !this.music) return;
+
+      this.music.volume = CONFIG.musicVolume;
+      if (!this.music.paused) return;
+
+      this.music.play().catch(() => {
+        // En movil el navegador solo deja iniciar musica tras una interaccion real.
+      });
+    }
+
+    pauseMusic() {
+      if (this.music && !this.music.paused) {
+        this.music.pause();
+      }
     }
 
     play(name) {
@@ -1421,6 +1446,7 @@
 
     start() {
       this.audio.unlock();
+      this.audio.playMusic();
       this.resetRun();
       this.fade();
       this.changeState(GameState.PLAYING);
@@ -1429,6 +1455,7 @@
 
     restart() {
       this.audio.unlock();
+      this.audio.playMusic();
       this.resetRun();
       this.fade();
       this.changeState(GameState.PLAYING);
@@ -1452,6 +1479,7 @@
     resume() {
       if (this.state === GameState.PAUSED) {
         this.audio.unlock();
+        this.audio.playMusic();
         this.changeState(GameState.PLAYING);
       }
     }
