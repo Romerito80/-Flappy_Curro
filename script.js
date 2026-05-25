@@ -50,6 +50,7 @@
     LOADING: "loading",
     START: "start",
     COLLECTION: "collection",
+    SHOP: "shop",
     PLAYING: "playing",
     PAUSED: "paused",
     GAME_OVER: "gameOver"
@@ -255,6 +256,10 @@
     collectionScreen: document.getElementById("collection-screen"),
     collectionList: document.getElementById("collection-list"),
     collectionStats: document.getElementById("collection-stats"),
+    shopScreen: document.getElementById("shop-screen"),
+    shopList: document.getElementById("shop-list"),
+    shopBank: document.getElementById("shop-bank"),
+    shopMessage: document.getElementById("shop-message"),
     hud: document.getElementById("hud"),
     pauseScreen: document.getElementById("pause-screen"),
     gameOverScreen: document.getElementById("game-over-screen"),
@@ -269,9 +274,9 @@
     finalBestValue: document.getElementById("final-best-value"),
     locationValue: document.getElementById("location-value"),
     finalBankValue: document.getElementById("final-bank-value"),
-    curiosityButton: document.getElementById("curiosity-button"),
-    curiosityMessage: document.getElementById("curiosity-message"),
     playButton: document.getElementById("play-button"),
+    shopButton: document.getElementById("shop-button"),
+    shopBackButton: document.getElementById("shop-back-button"),
     collectionButton: document.getElementById("collection-button"),
     collectionBackButton: document.getElementById("collection-back-button"),
     pauseButton: document.getElementById("pause-button"),
@@ -1394,6 +1399,15 @@
 
     bind() {
       dom.playButton.addEventListener("click", () => this.game.start());
+      dom.shopButton.addEventListener("click", () => this.game.openShop());
+      dom.shopBackButton.addEventListener("click", () => this.game.closeShop());
+      dom.shopList.addEventListener("click", (event) => {
+        if (!(event.target instanceof Element)) return;
+        const button = event.target.closest("[data-shop-location-id]");
+        if (!button) return;
+        event.stopPropagation();
+        this.game.buyCuriosity(button.dataset.shopLocationId);
+      });
       dom.collectionButton.addEventListener("click", () => this.game.openCollection());
       dom.collectionBackButton.addEventListener("click", () => this.game.closeCollection());
       dom.restartButton.addEventListener("click", () => this.game.restart());
@@ -1402,10 +1416,6 @@
       dom.pauseButton.addEventListener("click", (event) => {
         event.stopPropagation();
         this.game.togglePause();
-      });
-      dom.curiosityButton.addEventListener("click", (event) => {
-        event.stopPropagation();
-        this.game.buyCuriosity();
       });
 
       window.addEventListener("keydown", (event) => {
@@ -1449,7 +1459,7 @@
       this.groundOffset = 0;
       this.shakeTime = 0;
       this.rafId = null;
-      this.curiosityMessageText = "";
+      this.shopMessageText = "";
     }
 
     async init() {
@@ -1473,9 +1483,19 @@
       dom.startScreen.hidden = nextState !== GameState.START;
       dom.startScreen.classList.toggle("active", nextState === GameState.START);
       dom.collectionScreen.hidden = nextState !== GameState.COLLECTION;
+      dom.shopScreen.hidden = nextState !== GameState.SHOP;
       dom.hud.hidden = !(nextState === GameState.PLAYING || nextState === GameState.PAUSED);
       dom.pauseScreen.hidden = nextState !== GameState.PAUSED;
       dom.gameOverScreen.hidden = nextState !== GameState.GAME_OVER;
+    }
+
+    openShop() {
+      this.renderShop();
+      this.changeState(GameState.SHOP);
+    }
+
+    closeShop() {
+      this.changeState(GameState.START);
     }
 
     openCollection() {
@@ -1514,7 +1534,7 @@
       this.speed = CONFIG.baseSpeed;
       this.groundOffset = 0;
       this.shakeTime = 0;
-      this.curiosityMessageText = "";
+      this.shopMessageText = "";
       this.syncHud();
     }
 
@@ -1537,6 +1557,11 @@
     primaryAction() {
       if (this.state === GameState.COLLECTION) {
         this.closeCollection();
+        return;
+      }
+
+      if (this.state === GameState.SHOP) {
+        this.closeShop();
         return;
       }
 
@@ -1650,29 +1675,38 @@
       });
     }
 
-    buyCuriosity() {
-      const location = this.getCurrentLocation();
+    getUnlockedCount(location) {
+      return location.curiosities.filter((curiosity) => {
+        return this.score.hasCuriosity(curiosity.id);
+      }).length;
+    }
+
+    buyCuriosity(locationId) {
+      const location = Locations.find((candidate) => candidate.id === locationId);
+      if (!location) return;
+
       const curiosity = this.getNextCuriosity(location);
 
       if (!curiosity) {
-        this.curiosityMessageText = `$ ${location.name}: zona completada. Ya tienes todas sus curiosidades.`;
-        this.syncHud();
+        this.shopMessageText = `$ ${location.name}: zona completada. Ya tienes todas sus curiosidades.`;
+        this.renderShop();
         return;
       }
 
       if (!this.score.canSpend(CONFIG.curiosityCost)) {
         const missing = CONFIG.curiosityCost - this.score.bank;
-        this.curiosityMessageText = `$ faltan ${missing} ensaladillas para desbloquear otra curiosidad.`;
-        this.syncHud();
+        this.shopMessageText = `$ faltan ${missing} ensaladillas para desbloquear otra curiosidad.`;
+        this.renderShop();
         return;
       }
 
       if (!this.score.spend(CONFIG.curiosityCost)) return;
 
       this.score.unlockCuriosity(curiosity.id);
-      this.curiosityMessageText = `$ ${curiosity.title}: ${curiosity.text}`;
+      this.shopMessageText = `$ ${curiosity.title}: ${curiosity.text}`;
       this.audio.play("score");
       this.syncHud();
+      this.renderShop();
       this.renderCollection();
     }
 
@@ -1689,7 +1723,6 @@
       dom.locationValue.textContent = location.name;
       this.renderBottleScore(dom.scoreBottles, this.score.score, 8);
       this.renderBottleScore(dom.finalScoreBottles, this.score.score, 12);
-      this.syncCuriosityShop(location);
     }
 
     getAllCuriosities() {
@@ -1744,36 +1777,73 @@
       });
     }
 
-    syncCuriosityShop(location) {
-      const nextCuriosity = this.getNextCuriosity(location);
-      const unlockedCount = location.curiosities.length - (nextCuriosity ? location.curiosities.slice(location.curiosities.indexOf(nextCuriosity)).length : 0);
-      const total = location.curiosities.length;
+    renderShop() {
+      if (!dom.shopList || !dom.shopBank || !dom.shopMessage) return;
 
-      if (!nextCuriosity) {
-        dom.curiosityButton.disabled = true;
-        dom.curiosityButton.textContent = `Zona completada ${total}/${total}`;
-      } else if (!this.score.canSpend(CONFIG.curiosityCost)) {
-        const missing = CONFIG.curiosityCost - this.score.bank;
-        dom.curiosityButton.disabled = true;
-        dom.curiosityButton.textContent = `Faltan ${missing} ensaladillas`;
+      const allCuriosities = this.getAllCuriosities();
+      const unlockedTotal = allCuriosities.filter((curiosity) => {
+        return this.score.hasCuriosity(curiosity.id);
+      }).length;
+
+      dom.shopBank.textContent = `Ensaladillas ${this.score.bank} | ${unlockedTotal}/${allCuriosities.length}`;
+      dom.shopList.replaceChildren();
+
+      Locations.forEach((location) => {
+        const nextCuriosity = this.getNextCuriosity(location);
+        const unlockedCount = this.getUnlockedCount(location);
+        const total = location.curiosities.length;
+        const missing = Math.max(CONFIG.curiosityCost - this.score.bank, 0);
+        const completed = !nextCuriosity;
+        const canBuy = !completed && this.score.canSpend(CONFIG.curiosityCost);
+
+        const item = document.createElement("article");
+        item.className = completed ? "shop-zone is-complete" : "shop-zone";
+
+        const header = document.createElement("div");
+        header.className = "shop-zone-header";
+
+        const title = document.createElement("h3");
+        title.textContent = location.name;
+
+        const progress = document.createElement("span");
+        progress.className = "shop-progress";
+        progress.textContent = `${unlockedCount}/${total}`;
+
+        header.append(title, progress);
+
+        const preview = document.createElement("p");
+        preview.className = "shop-preview";
+        preview.textContent = completed
+          ? "Zona completada"
+          : `Siguiente: ${nextCuriosity.title}`;
+
+        const button = document.createElement("button");
+        button.className = "primary-button shop-buy-button";
+        button.type = "button";
+        button.dataset.shopLocationId = location.id;
+        button.disabled = !canBuy;
+        button.textContent = completed
+          ? "Completada"
+          : canBuy
+            ? `${CONFIG.curiosityCost} ensaladillas`
+            : `Faltan ${missing}`;
+        button.setAttribute(
+          "aria-label",
+          completed
+            ? `Todas las curiosidades de ${location.name} desbloqueadas`
+            : `Canjear curiosidad de ${location.name} por ${CONFIG.curiosityCost} ensaladillas`
+        );
+
+        item.append(header, preview, button);
+        dom.shopList.appendChild(item);
+      });
+
+      if (this.shopMessageText) {
+        dom.shopMessage.hidden = false;
+        dom.shopMessage.textContent = this.shopMessageText;
       } else {
-        dom.curiosityButton.disabled = false;
-        dom.curiosityButton.textContent = `Comprar - ${CONFIG.curiosityCost} ensaladillas`;
-      }
-
-      dom.curiosityButton.setAttribute(
-        "aria-label",
-        nextCuriosity
-          ? `Comprar curiosidad de ${location.name} por ${CONFIG.curiosityCost} ensaladillas`
-          : `Todas las curiosidades de ${location.name} desbloqueadas`
-      );
-
-      if (this.curiosityMessageText) {
-        dom.curiosityMessage.hidden = false;
-        dom.curiosityMessage.textContent = this.curiosityMessageText;
-      } else {
-        dom.curiosityMessage.hidden = false;
-        dom.curiosityMessage.textContent = `$ ${location.name}: ${unlockedCount}/${total} curiosidades desbloqueadas.`;
+        dom.shopMessage.hidden = true;
+        dom.shopMessage.textContent = "";
       }
     }
 

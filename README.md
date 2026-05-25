@@ -17,6 +17,8 @@ Despues visita `http://localhost:8000`.
 - Espacio o flecha arriba: salto.
 - Click o toque en pantalla: salto.
 - Boton de pausa, tecla `P` o `Esc`: pausar.
+- Boton `Canjear`: gastar ensaladillas en curiosidades.
+- Boton de copa: ver curiosidades desbloqueadas.
 
 ## Estructura
 
@@ -50,7 +52,7 @@ Juego/
 - La interfaz usa una estetica de terminal Linux retro: paneles oscuros, texto verde fosforo, scanlines y botones tipo consola.
 - La puntuacion se representa tambien con botellines pixel-art estilo Cruzcampo, manteniendo el numero para que sea legible.
 - La moneda acumulable se muestra como ensaladillas y se conserva con `localStorage`.
-- En Game Over se pueden gastar ensaladillas para comprar curiosidades de la ubicacion actual.
+- Desde la pantalla de inicio se accede a `Canjear`, una pantalla propia para gastar ensaladillas en curiosidades por zonas.
 - Hay 30 curiosidades coleccionables de Sevilla.
 - La coleccion se guarda con `localStorage` y se consulta desde el boton de copa en la pantalla de inicio.
 - El himno de Sevilla se reproduce como musica de fondo en bucle y a volumen bajo al pulsar `Jugar`.
