@@ -24,7 +24,9 @@
     localStorageKey: "flappy-curro-sevilla-record",
     bankStorageKey: "flappy-curro-sevilla-botellines-banco",
     curiosityStorageKey: "flappy-curro-sevilla-curiosidades",
+    cardStorageKey: "flappy-curro-sevilla-cartas-monumentales",
     curiosityCost: 4,
+    landmarkCardCost: 15,
     assetPaths: {
       curro: "assets/sprites/curro.png",
       giralda: "assets/sprites/giralda.png",
@@ -250,6 +252,141 @@
     }
   ];
 
+  const LandmarkCards = [
+    {
+      id: "sevilla-fc",
+      name: "Sevilla FC",
+      type: "Emblema",
+      rarity: "Especial",
+      power: 92,
+      code: "SFC",
+      artClass: "sevilla-fc",
+      imagePath: "assets/cards/sevilla_fc.png",
+      text: "Un escudo ligado a Nervion, a las noches europeas y a una parte enorme de la identidad futbolera sevillana."
+    },
+    {
+      id: "plaza-espana-card",
+      name: "Plaza de Espana",
+      type: "Monumento",
+      rarity: "Legendaria",
+      power: 99,
+      code: "PZA",
+      artClass: "plaza-espana",
+      imagePath: "assets/cards/plaza_espana.jpg",
+      text: "La gran plaza regionalista de 1929, con canal, puentes y bancos de azulejos de las provincias."
+    },
+    {
+      id: "torre-oro-card",
+      name: "Torre del Oro",
+      type: "Torre",
+      rarity: "Historica",
+      power: 88,
+      code: "ORO",
+      artClass: "torre-oro",
+      imagePath: "assets/cards/torre_del_oro.jpg",
+      text: "Torre almohade junto al Guadalquivir, antigua pieza defensiva y una de las siluetas clasicas de Sevilla."
+    },
+    {
+      id: "giralda-card",
+      name: "La Giralda",
+      type: "Torre",
+      rarity: "Legendaria",
+      power: 100,
+      code: "GIR",
+      artClass: "giralda",
+      imagePath: "assets/cards/giralda.jpg",
+      text: "Antiguo alminar y campanario de la Catedral, visible desde media ciudad y simbolo absoluto de Sevilla."
+    },
+    {
+      id: "puente-triana-card",
+      name: "Puente de Triana",
+      type: "Puente",
+      rarity: "Historica",
+      power: 84,
+      code: "TRI",
+      artClass: "puente-triana",
+      imagePath: "assets/cards/puente_triana.jpg",
+      text: "El Puente de Isabel II une el centro con Triana y se refleja sobre el Guadalquivir como una postal viva."
+    },
+    {
+      id: "setas-card",
+      name: "Setas de Sevilla",
+      type: "Mirador",
+      rarity: "Moderna",
+      power: 76,
+      code: "SET",
+      artClass: "setas",
+      imagePath: "assets/cards/setas.jpg",
+      text: "La estructura de la Encarnacion mezcla madera, sombra y mirador contemporaneo sobre el casco historico."
+    },
+    {
+      id: "alcazar-card",
+      name: "Real Alcazar",
+      type: "Palacio",
+      rarity: "Legendaria",
+      power: 97,
+      code: "ALC",
+      artClass: "alcazar",
+      imagePath: "assets/cards/alcazar.jpg",
+      text: "Palacio real con patios, yeserias, jardines y siglos de historia andalusi, gotica, renacentista y barroca."
+    },
+    {
+      id: "san-telmo-card",
+      name: "Palacio de San Telmo",
+      type: "Palacio",
+      rarity: "Monumental",
+      power: 82,
+      code: "STM",
+      artClass: "san-telmo",
+      imagePath: "assets/cards/san_telmo.jpg",
+      text: "Su fachada barroca mira al rio y recuerda la antigua escuela de navegantes de la ciudad."
+    },
+    {
+      id: "cabildo-card",
+      name: "Plaza del Cabildo",
+      type: "Plaza",
+      rarity: "Secreta",
+      power: 79,
+      code: "CAB",
+      artClass: "cabildo",
+      imagePath: "assets/cards/cabildo.jpg",
+      text: "Una plaza semicircular, tranquila y escondida, con arcos blancos y pintura mural junto a la Catedral."
+    },
+    {
+      id: "colon-card",
+      name: "Monumento a Colon",
+      type: "Monumento",
+      rarity: "Epica",
+      power: 81,
+      code: "COL",
+      artClass: "colon",
+      imagePath: "assets/cards/colon.jpg",
+      text: "La gran escultura del huevo de Colon recuerda la relacion de Sevilla con los viajes oceanicos."
+    },
+    {
+      id: "catedral-card",
+      name: "Catedral de Sevilla",
+      type: "Catedral",
+      rarity: "Legendaria",
+      power: 98,
+      code: "CAT",
+      artClass: "catedral",
+      imagePath: "assets/cards/catedral.jpg",
+      text: "Una de las mayores catedrales goticas del mundo, levantada sobre la antigua mezquita mayor."
+    },
+    {
+      id: "maestranza-card",
+      name: "La Maestranza",
+      type: "Arenal",
+      rarity: "Historica",
+      power: 80,
+      code: "MAE",
+      artClass: "maestranza",
+      imagePath: "assets/cards/maestranza.jpg",
+      text: "La plaza de toros del Arenal destaca por su fachada blanca y albero junto al Guadalquivir."
+    }
+  ];
+
   const dom = {
     canvas: document.getElementById("game-canvas"),
     startScreen: document.getElementById("start-screen"),
@@ -282,6 +419,8 @@
     pauseButton: document.getElementById("pause-button"),
     resumeButton: document.getElementById("resume-button"),
     pauseRestartButton: document.getElementById("pause-restart-button"),
+    pauseHomeButton: document.getElementById("pause-home-button"),
+    gameOverHomeButton: document.getElementById("game-over-home-button"),
     restartButton: document.getElementById("restart-button")
   };
 
@@ -465,6 +604,7 @@
       this.best = this.readBest();
       this.bank = this.readNumber(CONFIG.bankStorageKey);
       this.unlockedCuriosities = new Set(this.readUnlockedCuriosities());
+      this.unlockedCards = new Set(this.readUnlockedCards());
     }
 
     readBest() {
@@ -491,6 +631,16 @@
       }
     }
 
+    readUnlockedCards() {
+      try {
+        const raw = window.localStorage.getItem(CONFIG.cardStorageKey);
+        const parsed = JSON.parse(raw || "[]");
+        return Array.isArray(parsed) ? parsed : [];
+      } catch (error) {
+        return [];
+      }
+    }
+
     writeNumber(key, value) {
       try {
         window.localStorage.setItem(key, String(value));
@@ -507,6 +657,17 @@
         );
       } catch (error) {
         // Las curiosidades siguen funcionando durante la sesion aunque no persistan.
+      }
+    }
+
+    writeUnlockedCards() {
+      try {
+        window.localStorage.setItem(
+          CONFIG.cardStorageKey,
+          JSON.stringify(Array.from(this.unlockedCards))
+        );
+      } catch (error) {
+        // Las cartas siguen funcionando durante la sesion aunque no persistan.
       }
     }
 
@@ -543,6 +704,15 @@
     unlockCuriosity(id) {
       this.unlockedCuriosities.add(id);
       this.writeUnlockedCuriosities();
+    }
+
+    hasCard(id) {
+      return this.unlockedCards.has(id);
+    }
+
+    unlockCard(id) {
+      this.unlockedCards.add(id);
+      this.writeUnlockedCards();
     }
   }
 
@@ -1403,6 +1573,13 @@
       dom.shopBackButton.addEventListener("click", () => this.game.closeShop());
       dom.shopList.addEventListener("click", (event) => {
         if (!(event.target instanceof Element)) return;
+        const cardButton = event.target.closest("[data-shop-card-id]");
+        if (cardButton) {
+          event.stopPropagation();
+          this.game.buyLandmarkCard(cardButton.dataset.shopCardId);
+          return;
+        }
+
         const button = event.target.closest("[data-shop-location-id]");
         if (!button) return;
         event.stopPropagation();
@@ -1412,6 +1589,8 @@
       dom.collectionBackButton.addEventListener("click", () => this.game.closeCollection());
       dom.restartButton.addEventListener("click", () => this.game.restart());
       dom.pauseRestartButton.addEventListener("click", () => this.game.restart());
+      dom.pauseHomeButton.addEventListener("click", () => this.game.goHome());
+      dom.gameOverHomeButton.addEventListener("click", () => this.game.goHome());
       dom.resumeButton.addEventListener("click", () => this.game.resume());
       dom.pauseButton.addEventListener("click", (event) => {
         event.stopPropagation();
@@ -1504,6 +1683,13 @@
     }
 
     closeCollection() {
+      this.changeState(GameState.START);
+    }
+
+    goHome() {
+      this.audio.pauseMusic();
+      this.resetRun();
+      this.fade();
       this.changeState(GameState.START);
     }
 
@@ -1710,6 +1896,33 @@
       this.renderCollection();
     }
 
+    buyLandmarkCard(cardId) {
+      const card = LandmarkCards.find((candidate) => candidate.id === cardId);
+      if (!card) return;
+
+      if (this.score.hasCard(card.id)) {
+        this.shopMessageText = `$ ${card.name}: carta ya desbloqueada.`;
+        this.renderShop();
+        return;
+      }
+
+      if (!this.score.canSpend(CONFIG.landmarkCardCost)) {
+        const missing = CONFIG.landmarkCardCost - this.score.bank;
+        this.shopMessageText = `$ faltan ${missing} ensaladillas para obtener esta carta.`;
+        this.renderShop();
+        return;
+      }
+
+      if (!this.score.spend(CONFIG.landmarkCardCost)) return;
+
+      this.score.unlockCard(card.id);
+      this.shopMessageText = `$ carta conseguida: ${card.name}.`;
+      this.audio.play("score");
+      this.syncHud();
+      this.renderShop();
+      this.renderCollection();
+    }
+
     syncHud() {
       const location = this.getCurrentLocation();
 
@@ -1741,9 +1954,29 @@
       const unlockedTotal = curiosities.filter((curiosity) => {
         return this.score.hasCuriosity(curiosity.id);
       }).length;
+      const unlockedCards = LandmarkCards.filter((card) => {
+        return this.score.hasCard(card.id);
+      }).length;
 
-      dom.collectionStats.textContent = `${unlockedTotal}/${curiosities.length} curiosidades`;
+      dom.collectionStats.textContent = `${unlockedTotal}/${curiosities.length} curiosidades | ${unlockedCards}/${LandmarkCards.length} cartas`;
       dom.collectionList.replaceChildren();
+
+      const cardTitle = document.createElement("h3");
+      cardTitle.className = "collection-section-title";
+      cardTitle.textContent = "Cartas monumentales";
+      dom.collectionList.appendChild(cardTitle);
+
+      const cardGrid = document.createElement("div");
+      cardGrid.className = "card-collection-grid";
+      LandmarkCards.forEach((card) => {
+        cardGrid.appendChild(this.createLandmarkCard(card, this.score.hasCard(card.id), false));
+      });
+      dom.collectionList.appendChild(cardGrid);
+
+      const curiosityTitle = document.createElement("h3");
+      curiosityTitle.className = "collection-section-title";
+      curiosityTitle.textContent = "Curiosidades";
+      dom.collectionList.appendChild(curiosityTitle);
 
       curiosities.forEach((curiosity, index) => {
         const unlocked = this.score.hasCuriosity(curiosity.id);
@@ -1784,9 +2017,17 @@
       const unlockedTotal = allCuriosities.filter((curiosity) => {
         return this.score.hasCuriosity(curiosity.id);
       }).length;
+      const unlockedCards = LandmarkCards.filter((card) => {
+        return this.score.hasCard(card.id);
+      }).length;
 
-      dom.shopBank.textContent = `Ensaladillas ${this.score.bank} | ${unlockedTotal}/${allCuriosities.length}`;
+      dom.shopBank.textContent = `Ensaladillas ${this.score.bank} | C ${unlockedTotal}/${allCuriosities.length} | M ${unlockedCards}/${LandmarkCards.length}`;
       dom.shopList.replaceChildren();
+
+      const curiosityTitle = document.createElement("h3");
+      curiosityTitle.className = "shop-section-title";
+      curiosityTitle.textContent = "Curiosidades";
+      dom.shopList.appendChild(curiosityTitle);
 
       Locations.forEach((location) => {
         const nextCuriosity = this.getNextCuriosity(location);
@@ -1838,6 +2079,44 @@
         dom.shopList.appendChild(item);
       });
 
+      const cardTitle = document.createElement("h3");
+      cardTitle.className = "shop-section-title";
+      cardTitle.textContent = `Cartas monumentales - ${CONFIG.landmarkCardCost} ensaladillas`;
+      dom.shopList.appendChild(cardTitle);
+
+      const cardGrid = document.createElement("div");
+      cardGrid.className = "card-shop-grid";
+      LandmarkCards.forEach((card) => {
+        const unlocked = this.score.hasCard(card.id);
+        const canBuy = !unlocked && this.score.canSpend(CONFIG.landmarkCardCost);
+        const missing = Math.max(CONFIG.landmarkCardCost - this.score.bank, 0);
+        const item = document.createElement("article");
+        item.className = unlocked ? "card-shop-item is-complete" : "card-shop-item";
+
+        item.appendChild(this.createLandmarkCard(card, unlocked, true));
+
+        const button = document.createElement("button");
+        button.className = "primary-button card-buy-button";
+        button.type = "button";
+        button.dataset.shopCardId = card.id;
+        button.disabled = !canBuy;
+        button.textContent = unlocked
+          ? "Conseguida"
+          : canBuy
+            ? `${CONFIG.landmarkCardCost} ensaladillas`
+            : `Faltan ${missing}`;
+        button.setAttribute(
+          "aria-label",
+          unlocked
+            ? `Carta ${card.name} desbloqueada`
+            : `Obtener carta ${card.name} por ${CONFIG.landmarkCardCost} ensaladillas`
+        );
+
+        item.appendChild(button);
+        cardGrid.appendChild(item);
+      });
+      dom.shopList.appendChild(cardGrid);
+
       if (this.shopMessageText) {
         dom.shopMessage.hidden = false;
         dom.shopMessage.textContent = this.shopMessageText;
@@ -1845,6 +2124,63 @@
         dom.shopMessage.hidden = true;
         dom.shopMessage.textContent = "";
       }
+    }
+
+    createLandmarkCard(card, unlocked, compact) {
+      const item = document.createElement("article");
+      item.className = `landmark-card landmark-card-${card.artClass}`;
+      if (!unlocked) {
+        item.classList.add("is-locked");
+      }
+      if (compact) {
+        item.classList.add("is-compact");
+      }
+
+      const top = document.createElement("div");
+      top.className = "landmark-card-top";
+
+      const title = document.createElement("h4");
+      title.textContent = unlocked || compact ? card.name : "Carta bloqueada";
+
+      const power = document.createElement("span");
+      power.className = "landmark-power";
+      power.textContent = unlocked || compact ? `PV ${card.power}` : "PV ?";
+
+      top.append(title, power);
+
+      const art = document.createElement("div");
+      art.className = "landmark-art";
+      art.setAttribute("aria-hidden", "true");
+
+      if (card.imagePath && (unlocked || compact)) {
+        art.classList.add("has-image");
+        const image = document.createElement("img");
+        image.src = card.imagePath;
+        image.alt = "";
+        image.loading = "eager";
+        art.appendChild(image);
+      } else {
+        const code = document.createElement("span");
+        code.textContent = unlocked || compact ? card.code : "???";
+        art.appendChild(code);
+      }
+
+      const meta = document.createElement("p");
+      meta.className = "landmark-meta";
+      meta.textContent = `${card.type} | ${card.rarity}`;
+
+      const text = document.createElement("p");
+      text.className = "landmark-text";
+      text.textContent = unlocked || compact
+        ? card.text
+        : "Canjea esta carta monumental por 15 ensaladillas.";
+
+      const attack = document.createElement("div");
+      attack.className = "landmark-attack";
+      attack.textContent = `${card.rarity} +${card.power}`;
+
+      item.append(top, art, meta, text, attack);
+      return item;
     }
 
     renderBottleScore(container, amount, maxVisible) {

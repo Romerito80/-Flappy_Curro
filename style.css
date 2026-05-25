@@ -571,6 +571,206 @@ h2::before {
   font-size: 12px;
 }
 
+.shop-section-title,
+.collection-section-title {
+  margin: 4px 0 0;
+  color: #ffd28a;
+  font-size: 15px;
+  line-height: 1.2;
+  text-align: left;
+  text-transform: uppercase;
+}
+
+.card-shop-grid,
+.card-collection-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.card-shop-item {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  padding: 6px;
+  background: rgba(0, 0, 0, 0.24);
+  border: 2px solid rgba(255, 210, 138, 0.35);
+}
+
+.card-shop-item.is-complete {
+  border-color: rgba(101, 255, 109, 0.7);
+}
+
+.landmark-card {
+  --card-main: #d99b45;
+  --card-dark: #5b2e21;
+  --card-light: #ffe0a3;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 242px;
+  padding: 7px;
+  color: #1c1309;
+  background: #f6c96f;
+  border: 3px solid #2b180b;
+  box-shadow:
+    inset 0 0 0 2px var(--card-light),
+    0 3px 0 rgba(0, 0, 0, 0.55);
+  text-shadow: none;
+}
+
+.landmark-card.is-compact {
+  min-height: 218px;
+}
+
+.landmark-card.is-locked {
+  filter: grayscale(0.9);
+  opacity: 0.72;
+}
+
+.landmark-card-top {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: start;
+  gap: 5px;
+}
+
+.landmark-card h4 {
+  margin: 0;
+  color: #241309;
+  font-size: 11px;
+  line-height: 1.12;
+  text-transform: uppercase;
+}
+
+.landmark-power {
+  padding: 2px 3px;
+  color: #fff4ce;
+  background: var(--card-dark);
+  border: 2px solid #241309;
+  font-size: 9px;
+  white-space: nowrap;
+}
+
+.landmark-art {
+  position: relative;
+  display: grid;
+  place-items: center;
+  min-height: 66px;
+  margin-top: 6px;
+  overflow: hidden;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.18), transparent 44%),
+    linear-gradient(135deg, var(--card-main), var(--card-dark));
+  border: 3px solid #241309;
+  image-rendering: pixelated;
+}
+
+.landmark-art::before,
+.landmark-art::after {
+  content: "";
+  position: absolute;
+  inset: auto;
+  pointer-events: none;
+}
+
+.landmark-art::before {
+  left: 14%;
+  bottom: 14px;
+  width: 72%;
+  height: 12px;
+  background: rgba(255, 244, 206, 0.75);
+  box-shadow:
+    0 -16px 0 -4px rgba(36, 19, 9, 0.34),
+    0 15px 0 -5px rgba(36, 19, 9, 0.42);
+}
+
+.landmark-art::after {
+  right: 13%;
+  bottom: 20px;
+  width: 20px;
+  height: 42px;
+  background: rgba(255, 244, 206, 0.72);
+  box-shadow:
+    -38px 14px 0 -5px rgba(255, 244, 206, 0.64),
+    28px 10px 0 -7px rgba(36, 19, 9, 0.48);
+}
+
+.landmark-art span {
+  position: relative;
+  z-index: 1;
+  padding: 3px 5px;
+  color: #fff4ce;
+  background: rgba(0, 0, 0, 0.52);
+  border: 2px solid rgba(255, 244, 206, 0.7);
+  font-size: 14px;
+  letter-spacing: 0;
+}
+
+.landmark-art.has-image {
+  background: #241309;
+}
+
+.landmark-art.has-image::before,
+.landmark-art.has-image::after {
+  display: none;
+}
+
+.landmark-art img {
+  width: 100%;
+  height: 100%;
+  min-height: 66px;
+  object-fit: cover;
+  image-rendering: auto;
+}
+
+.landmark-meta,
+.landmark-text,
+.landmark-attack {
+  font-size: 9px;
+  line-height: 1.25;
+}
+
+.landmark-meta {
+  margin-top: 6px;
+  color: #402112;
+  text-transform: uppercase;
+}
+
+.landmark-text {
+  flex: 1;
+  margin-top: 5px;
+  text-transform: none;
+}
+
+.landmark-attack {
+  margin-top: 6px;
+  padding-top: 5px;
+  color: #241309;
+  border-top: 2px solid rgba(36, 19, 9, 0.35);
+  text-transform: uppercase;
+}
+
+.card-buy-button {
+  width: 100%;
+  min-height: 38px;
+  margin-top: 7px;
+  font-size: 10px;
+}
+
+.landmark-card-sevilla-fc { --card-main: #df2f29; --card-dark: #7b1817; --card-light: #fff4ce; }
+.landmark-card-plaza-espana { --card-main: #d77a34; --card-dark: #744322; --card-light: #ffe0a3; }
+.landmark-card-torre-oro { --card-main: #c9a461; --card-dark: #6c5731; --card-light: #f5e0a6; }
+.landmark-card-giralda { --card-main: #d29b62; --card-dark: #60402a; --card-light: #f4d0a2; }
+.landmark-card-puente-triana { --card-main: #5d95a9; --card-dark: #274a57; --card-light: #d2f4ff; }
+.landmark-card-setas { --card-main: #d7bd72; --card-dark: #806126; --card-light: #fff0b7; }
+.landmark-card-alcazar { --card-main: #7db05e; --card-dark: #344d27; --card-light: #dcf7b4; }
+.landmark-card-san-telmo { --card-main: #c65836; --card-dark: #603121; --card-light: #ffd0a6; }
+.landmark-card-cabildo { --card-main: #f4e7ca; --card-dark: #725a31; --card-light: #fff8e7; }
+.landmark-card-colon { --card-main: #7e847e; --card-dark: #323a36; --card-light: #d7ded5; }
+.landmark-card-catedral { --card-main: #c68b66; --card-dark: #5f392b; --card-light: #f1c5a5; }
+.landmark-card-maestranza { --card-main: #f2d45f; --card-dark: #704323; --card-light: #fff2a8; }
+
 .collection-item {
   padding: 9px;
   color: rgba(184, 255, 139, 0.56);

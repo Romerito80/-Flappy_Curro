@@ -17,8 +17,9 @@ Despues visita `http://localhost:8000`.
 - Espacio o flecha arriba: salto.
 - Click o toque en pantalla: salto.
 - Boton de pausa, tecla `P` o `Esc`: pausar.
-- Boton `Canjear`: gastar ensaladillas en curiosidades.
-- Boton de copa: ver curiosidades desbloqueadas.
+- Boton `Inicio` en pausa o Game Over: volver a la pantalla principal.
+- Boton `Canjear`: gastar ensaladillas en curiosidades y cartas monumentales.
+- Boton de copa: ver curiosidades y cartas desbloqueadas.
 
 ## Estructura
 
@@ -54,7 +55,9 @@ Juego/
 - La moneda acumulable se muestra como ensaladillas y se conserva con `localStorage`.
 - Desde la pantalla de inicio se accede a `Canjear`, una pantalla propia para gastar ensaladillas en curiosidades por zonas.
 - Hay 30 curiosidades coleccionables de Sevilla.
-- La coleccion se guarda con `localStorage` y se consulta desde el boton de copa en la pantalla de inicio.
+- Hay 12 cartas monumentales tipo coleccionable, inspiradas en lugares significativos de Sevilla, que cuestan 15 ensaladillas cada una.
+- Las cartas usan fotos guardadas en `assets/cards/`.
+- La coleccion de curiosidades y cartas se guarda con `localStorage` y se consulta desde el boton de copa en la pantalla de inicio.
 - El himno de Sevilla se reproduce como musica de fondo en bucle y a volumen bajo al pulsar `Jugar`.
 - Los obstaculos se generan proceduralmente con referencias sevillanas: Giralda, Torre del Oro, Torre Pelli, columnas, farolas y balcones.
 - El record se guarda con `localStorage`.
