@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Flappy Curro Sevilla</title>
+    <link rel="stylesheet" href="style.css">
+  </head>
+  <body>
+    <main class="game-shell" aria-label="Flappy Curro Sevilla">
+      <canvas id="game-canvas" width="432" height="768" aria-label="Lienzo del juego"></canvas>
+
+      <div id="fade-layer" class="fade-layer"></div>
+
+      <section id="start-screen" class="screen screen-start active" aria-live="polite">
+        <div class="screen-panel">
+          <div class="logo-mark" aria-hidden="true">
+            <span class="crest c1"></span>
+            <span class="crest c2"></span>
+            <span class="crest c3"></span>
+            <span class="crest c4"></span>
+          </div>
+          <h1>Flappy Curro Sevilla</h1>
+          <button id="play-button" class="primary-button" type="button">Jugar</button>
+        </div>
+      </section>
+
+      <section id="hud" class="hud" hidden>
+        <div class="score-box" aria-live="polite">
+          <div class="score-line">
+            <span id="score-value">0</span>
+            <span class="score-unit">botellines</span>
+          </div>
+          <div id="score-bottles" class="score-bottles" aria-label="Botellines Cruzcampo 0"></div>
+          <small>Record <span id="best-value">0</span></small>
+          <small class="bank-line">Ensaladillas <span id="beer-bank-value">0</span></small>
+          <small class="hud-location-line">Zona <span id="location-hud-value">Ribera del Guadalquivir</span></small>
+        </div>
+        <button id="pause-button" class="icon-button" type="button" aria-label="Pausar">II</button>
+      </section>
+
+      <section id="pause-screen" class="screen screen-compact" hidden aria-live="polite">
+        <div class="screen-panel">
+          <h2>Pausa</h2>
+          <button id="resume-button" class="primary-button" type="button">Continuar</button>
+          <button id="pause-restart-button" class="ghost-button" type="button">Reiniciar</button>
+        </div>
+      </section>
+
+      <section id="game-over-screen" class="screen screen-compact" hidden aria-live="polite">
+        <div class="screen-panel">
+          <h2>Game Over</h2>
+          <p class="final-score">Botellines <strong id="final-score-value">0</strong></p>
+          <div id="final-score-bottles" class="score-bottles score-bottles-final" aria-label="Botellines Cruzcampo final 0"></div>
+          <p class="final-best">Record <strong id="final-best-value">0</strong></p>
+          <p class="location-label">Ubicacion <strong id="location-value">Sevilla</strong></p>
+          <p class="bank-summary">Ensaladillas <strong id="final-bank-value">0</strong></p>
+          <button id="curiosity-button" class="primary-button curiosity-button" type="button">Comprar curiosidad</button>
+          <p id="curiosity-message" class="curiosity-message" hidden></p>
+          <button id="restart-button" class="primary-button" type="button">Reiniciar</button>
+        </div>
+      </section>
+    </main>
+
+    <script src="script.js" defer></script>
+  </body>
+</html>
