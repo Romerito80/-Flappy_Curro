@@ -1573,17 +1573,16 @@
       dom.shopBackButton.addEventListener("click", () => this.game.closeShop());
       dom.shopList.addEventListener("click", (event) => {
         if (!(event.target instanceof Element)) return;
-        const cardButton = event.target.closest("[data-shop-card-id]");
-        if (cardButton) {
-          event.stopPropagation();
-          this.game.buyLandmarkCard(cardButton.dataset.shopCardId);
-          return;
-        }
-
-        const button = event.target.closest("[data-shop-location-id]");
+        const button = event.target.closest("[data-shop-kind]");
         if (!button) return;
         event.stopPropagation();
-        this.game.buyCuriosity(button.dataset.shopLocationId);
+        if (button.dataset.shopKind === "curiosity") {
+          this.game.buyRandomCuriosity();
+          return;
+        }
+        if (button.dataset.shopKind === "card") {
+          this.game.buyRandomLandmarkCard();
+        }
       });
       dom.collectionButton.addEventListener("click", () => this.game.openCollection());
       dom.collectionBackButton.addEventListener("click", () => this.game.closeCollection());
@@ -1867,14 +1866,27 @@
       }).length;
     }
 
-    buyCuriosity(locationId) {
-      const location = Locations.find((candidate) => candidate.id === locationId);
-      if (!location) return;
+    pickRandomItem(items) {
+      return items[Math.floor(Math.random() * items.length)];
+    }
 
-      const curiosity = this.getNextCuriosity(location);
+    getLockedCuriosities() {
+      return this.getAllCuriosities().filter((curiosity) => {
+        return !this.score.hasCuriosity(curiosity.id);
+      });
+    }
 
-      if (!curiosity) {
-        this.shopMessageText = `$ ${location.name}: zona completada. Ya tienes todas sus curiosidades.`;
+    getLockedCards() {
+      return LandmarkCards.filter((card) => {
+        return !this.score.hasCard(card.id);
+      });
+    }
+
+    buyRandomCuriosity() {
+      const lockedCuriosities = this.getLockedCuriosities();
+
+      if (lockedCuriosities.length === 0) {
+        this.shopMessageText = "$ coleccion completa: ya tienes todas las curiosidades.";
         this.renderShop();
         return;
       }
@@ -1888,20 +1900,20 @@
 
       if (!this.score.spend(CONFIG.curiosityCost)) return;
 
+      const curiosity = this.pickRandomItem(lockedCuriosities);
       this.score.unlockCuriosity(curiosity.id);
-      this.shopMessageText = `$ ${curiosity.title}: ${curiosity.text}`;
+      this.shopMessageText = `$ curiosidad conseguida: ${curiosity.title} (${curiosity.locationName}).`;
       this.audio.play("score");
       this.syncHud();
       this.renderShop();
       this.renderCollection();
     }
 
-    buyLandmarkCard(cardId) {
-      const card = LandmarkCards.find((candidate) => candidate.id === cardId);
-      if (!card) return;
+    buyRandomLandmarkCard() {
+      const lockedCards = this.getLockedCards();
 
-      if (this.score.hasCard(card.id)) {
-        this.shopMessageText = `$ ${card.name}: carta ya desbloqueada.`;
+      if (lockedCards.length === 0) {
+        this.shopMessageText = "$ album completo: ya tienes todas las cartas monumentales.";
         this.renderShop();
         return;
       }
@@ -1915,6 +1927,7 @@
 
       if (!this.score.spend(CONFIG.landmarkCardCost)) return;
 
+      const card = this.pickRandomItem(lockedCards);
       this.score.unlockCard(card.id);
       this.shopMessageText = `$ carta conseguida: ${card.name}.`;
       this.audio.play("score");
@@ -2020,102 +2033,77 @@
       const unlockedCards = LandmarkCards.filter((card) => {
         return this.score.hasCard(card.id);
       }).length;
+      const lockedCuriosities = allCuriosities.length - unlockedTotal;
+      const lockedCards = LandmarkCards.length - unlockedCards;
 
       dom.shopBank.textContent = `Ensaladillas ${this.score.bank} | C ${unlockedTotal}/${allCuriosities.length} | M ${unlockedCards}/${LandmarkCards.length}`;
       dom.shopList.replaceChildren();
 
-      const curiosityTitle = document.createElement("h3");
-      curiosityTitle.className = "shop-section-title";
-      curiosityTitle.textContent = "Curiosidades";
-      dom.shopList.appendChild(curiosityTitle);
+      const randomOptions = [
+        {
+          kind: "curiosity",
+          title: "Curiosidad",
+          badge: `${unlockedTotal}/${allCuriosities.length}`,
+          cost: CONFIG.curiosityCost,
+          locked: lockedCuriosities,
+          text: "Desbloquea una curiosidad aleatoria de Sevilla.",
+          completeText: "Todas las curiosidades conseguidas."
+        },
+        {
+          kind: "card",
+          title: "Carta",
+          badge: `${unlockedCards}/${LandmarkCards.length}`,
+          cost: CONFIG.landmarkCardCost,
+          locked: lockedCards,
+          text: "Obtiene una carta monumental aleatoria.",
+          completeText: "Todas las cartas conseguidas."
+        }
+      ];
 
-      Locations.forEach((location) => {
-        const nextCuriosity = this.getNextCuriosity(location);
-        const unlockedCount = this.getUnlockedCount(location);
-        const total = location.curiosities.length;
-        const missing = Math.max(CONFIG.curiosityCost - this.score.bank, 0);
-        const completed = !nextCuriosity;
-        const canBuy = !completed && this.score.canSpend(CONFIG.curiosityCost);
+      randomOptions.forEach((option) => {
+        const complete = option.locked === 0;
+        const canBuy = !complete && this.score.canSpend(option.cost);
+        const missing = Math.max(option.cost - this.score.bank, 0);
 
         const item = document.createElement("article");
-        item.className = completed ? "shop-zone is-complete" : "shop-zone";
+        item.className = complete ? "shop-random-option is-complete" : "shop-random-option";
 
         const header = document.createElement("div");
-        header.className = "shop-zone-header";
+        header.className = "shop-random-header";
 
         const title = document.createElement("h3");
-        title.textContent = location.name;
+        title.textContent = option.title;
 
-        const progress = document.createElement("span");
-        progress.className = "shop-progress";
-        progress.textContent = `${unlockedCount}/${total}`;
+        const badge = document.createElement("span");
+        badge.className = "shop-random-badge";
+        badge.textContent = option.badge;
 
-        header.append(title, progress);
+        header.append(title, badge);
 
-        const preview = document.createElement("p");
-        preview.className = "shop-preview";
-        preview.textContent = completed
-          ? "Zona completada"
-          : `Siguiente: ${nextCuriosity.title}`;
+        const text = document.createElement("p");
+        text.className = "shop-random-text";
+        text.textContent = complete ? option.completeText : option.text;
 
         const button = document.createElement("button");
-        button.className = "primary-button shop-buy-button";
+        button.className = "primary-button shop-random-button";
         button.type = "button";
-        button.dataset.shopLocationId = location.id;
+        button.dataset.shopKind = option.kind;
         button.disabled = !canBuy;
-        button.textContent = completed
-          ? "Completada"
+        button.textContent = complete
+          ? "Completo"
           : canBuy
-            ? `${CONFIG.curiosityCost} ensaladillas`
+            ? `${option.cost} ensaladillas`
             : `Faltan ${missing}`;
         button.setAttribute(
           "aria-label",
-          completed
-            ? `Todas las curiosidades de ${location.name} desbloqueadas`
-            : `Canjear curiosidad de ${location.name} por ${CONFIG.curiosityCost} ensaladillas`
+          complete
+            ? `${option.title} completada`
+            : `Canjear ${option.title.toLowerCase()} aleatoria por ${option.cost} ensaladillas`
         );
 
-        item.append(header, preview, button);
+        item.append(header, text, button);
         dom.shopList.appendChild(item);
       });
-
-      const cardTitle = document.createElement("h3");
-      cardTitle.className = "shop-section-title";
-      cardTitle.textContent = `Cartas monumentales - ${CONFIG.landmarkCardCost} ensaladillas`;
-      dom.shopList.appendChild(cardTitle);
-
-      const cardGrid = document.createElement("div");
-      cardGrid.className = "card-shop-grid";
-      LandmarkCards.forEach((card) => {
-        const unlocked = this.score.hasCard(card.id);
-        const canBuy = !unlocked && this.score.canSpend(CONFIG.landmarkCardCost);
-        const missing = Math.max(CONFIG.landmarkCardCost - this.score.bank, 0);
-        const item = document.createElement("article");
-        item.className = unlocked ? "card-shop-item is-complete" : "card-shop-item";
-
-        item.appendChild(this.createLandmarkCard(card, unlocked, true));
-
-        const button = document.createElement("button");
-        button.className = "primary-button card-buy-button";
-        button.type = "button";
-        button.dataset.shopCardId = card.id;
-        button.disabled = !canBuy;
-        button.textContent = unlocked
-          ? "Conseguida"
-          : canBuy
-            ? `${CONFIG.landmarkCardCost} ensaladillas`
-            : `Faltan ${missing}`;
-        button.setAttribute(
-          "aria-label",
-          unlocked
-            ? `Carta ${card.name} desbloqueada`
-            : `Obtener carta ${card.name} por ${CONFIG.landmarkCardCost} ensaladillas`
-        );
-
-        item.appendChild(button);
-        cardGrid.appendChild(item);
-      });
-      dom.shopList.appendChild(cardGrid);
 
       if (this.shopMessageText) {
         dom.shopMessage.hidden = false;

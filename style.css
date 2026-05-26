@@ -153,47 +153,26 @@ h2::before {
 }
 
 .logo-mark {
-  position: relative;
-  width: 72px;
-  height: 58px;
+  display: grid;
+  place-items: center;
+  width: min(100%, 244px);
+  height: 138px;
   margin: 0 auto 14px;
-}
-
-.logo-mark::before {
-  content: "";
-  position: absolute;
-  left: 17px;
-  top: 17px;
-  width: 42px;
-  height: 34px;
+  overflow: hidden;
   background: #fffdf3;
   border: 4px solid #0a0d0a;
-  box-shadow: inset -7px -4px #ded6c9;
+  box-shadow:
+    inset 0 0 0 2px rgba(101, 255, 109, 0.18),
+    0 0 14px rgba(101, 255, 109, 0.16);
 }
 
-.logo-mark::after {
-  content: "";
-  position: absolute;
-  left: 45px;
-  top: 25px;
-  width: 24px;
-  height: 12px;
-  background: #e95f2e;
-  border: 4px solid #0a0d0a;
+.logo-mark img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
 }
-
-.crest {
-  position: absolute;
-  top: 0;
-  width: 12px;
-  height: 22px;
-  border: 3px solid #0a0d0a;
-}
-
-.c1 { left: 7px; background: #f04a3b; }
-.c2 { left: 20px; background: #f8cc3d; }
-.c3 { left: 33px; background: #42b667; }
-.c4 { left: 46px; background: #337ad4; }
 
 .primary-button,
 .ghost-button,
@@ -522,6 +501,53 @@ h2::before {
   overflow-y: auto;
   text-align: left;
   scrollbar-color: var(--green) rgba(0, 0, 0, 0.24);
+}
+
+.shop-random-option {
+  padding: 12px;
+  background: rgba(0, 0, 0, 0.24);
+  border: 2px solid rgba(101, 255, 109, 0.45);
+  box-shadow: inset 0 0 18px rgba(101, 255, 109, 0.06);
+}
+
+.shop-random-option.is-complete {
+  border-color: rgba(255, 210, 138, 0.72);
+}
+
+.shop-random-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.shop-random-header h3 {
+  margin: 0;
+  font-size: 18px;
+  line-height: 1.1;
+  text-transform: uppercase;
+}
+
+.shop-random-badge {
+  color: #ffd28a;
+  font-size: 13px;
+  white-space: nowrap;
+}
+
+.shop-random-text {
+  margin-top: 9px;
+  color: var(--terminal-dim);
+  font-size: 12px;
+  line-height: 1.35;
+  text-align: left;
+  text-transform: none;
+}
+
+.shop-random-button {
+  width: 100%;
+  min-height: 46px;
+  margin-top: 12px;
+  font-size: 13px;
 }
 
 .shop-zone {

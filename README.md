@@ -18,7 +18,7 @@ Despues visita `http://localhost:8000`.
 - Click o toque en pantalla: salto.
 - Boton de pausa, tecla `P` o `Esc`: pausar.
 - Boton `Inicio` en pausa o Game Over: volver a la pantalla principal.
-- Boton `Canjear`: gastar ensaladillas en curiosidades y cartas monumentales.
+- Boton `Canjear`: gastar ensaladillas en una curiosidad aleatoria o una carta monumental aleatoria.
 - Boton de copa: ver curiosidades y cartas desbloqueadas.
 
 ## Estructura
@@ -53,7 +53,7 @@ Juego/
 - La interfaz usa una estetica de terminal Linux retro: paneles oscuros, texto verde fosforo, scanlines y botones tipo consola.
 - La puntuacion se representa tambien con botellines pixel-art estilo Cruzcampo, manteniendo el numero para que sea legible.
 - La moneda acumulable se muestra como ensaladillas y se conserva con `localStorage`.
-- Desde la pantalla de inicio se accede a `Canjear`, una pantalla propia para gastar ensaladillas en curiosidades por zonas.
+- Desde la pantalla de inicio se accede a `Canjear`, una pantalla propia con dos canjes aleatorios: curiosidades y cartas.
 - Hay 30 curiosidades coleccionables de Sevilla.
 - Hay 12 cartas monumentales tipo coleccionable, inspiradas en lugares significativos de Sevilla, que cuestan 15 ensaladillas cada una.
 - Las cartas usan fotos guardadas en `assets/cards/`.
